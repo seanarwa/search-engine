@@ -3,6 +3,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import SearchBar from 'material-ui-search-bar';
 import axios from "axios";
 
+import IndexingPanel from './IndexingPanel';
+
 class App extends Component {
   // initialize our state
   state = {
@@ -43,7 +45,7 @@ class App extends Component {
   // our first get method that uses our backend api to
   // fetch data from our data base
   getDataFromDb = () => {
-    fetch("http://localhost:3001/api/getData")
+    fetch("http://localhost:3001/api/data/get")
       .then(data => data.json())
       .then(res => this.setState({ data: res.data }))
       .catch((err) => console.log(err));
@@ -58,7 +60,7 @@ class App extends Component {
       ++idToBeAdded;
     }
 
-    axios.post("http://localhost:3001/api/putData", {
+    axios.post("http://localhost:3001/api/data/put", {
       id: idToBeAdded,
       message: message
     });
@@ -75,7 +77,7 @@ class App extends Component {
       }
     });
 
-    axios.delete("http://localhost:3001/api/deleteData", {
+    axios.delete("http://localhost:3001/api/data/delete", {
       data: {
         id: objIdToDelete
       }
@@ -93,12 +95,17 @@ class App extends Component {
       }
     });
 
-    axios.post("http://localhost:3001/api/updateData", {
+    axios.post("http://localhost:3001/api/data/update", {
       id: objIdToUpdate,
       update: { message: updateToApply }
     });
   };
 
+  // <SearchBar
+  //   onChange={() => console.log('onChange')}
+  //   onRequestSearch={() => console.log('onRequestSearch')}
+  //   style={{ width: "80%" }}
+  // />
 
   // here is our UI
   // it is easy to understand their functions when you
@@ -108,11 +115,63 @@ class App extends Component {
     return (
       <MuiThemeProvider>
         <div style={{ height: "100vh", width: "100%", display: "flex", justifyContent: 'center', alignItems: "center" }}>
-          <SearchBar
-            onChange={() => console.log('onChange')}
-            onRequestSearch={() => console.log('onRequestSearch')}
-            style={{ width: "80%" }}
-          />
+          <IndexingPanel />
+          <div>
+            <ul>
+              {data.length <= 0
+                ? "NO DB ENTRIES YET"
+                : data.map(dat => (
+                    <li style={{ padding: "10px" }} key={data.message}>
+                      <span style={{ color: "gray" }}> id: </span> {dat.id} <br />
+                      <span style={{ color: "gray" }}> data: </span>
+                      {dat.message}
+                    </li>
+                  ))}
+            </ul>
+            <div style={{ padding: "10px" }}>
+              <input
+                type="text"
+                onChange={e => this.setState({ message: e.target.value })}
+                placeholder="add something in the database"
+                style={{ width: "200px" }}
+              />
+              <button onClick={() => this.putDataToDB(this.state.message)}>
+                ADD
+              </button>
+            </div>
+            <div style={{ padding: "10px" }}>
+              <input
+                type="text"
+                style={{ width: "200px" }}
+                onChange={e => this.setState({ idToDelete: e.target.value })}
+                placeholder="put id of item to delete here"
+              />
+              <button onClick={() => this.deleteFromDB(this.state.idToDelete)}>
+                DELETE
+              </button>
+            </div>
+            <div style={{ padding: "10px" }}>
+              <input
+                type="text"
+                style={{ width: "200px" }}
+                onChange={e => this.setState({ idToUpdate: e.target.value })}
+                placeholder="id of item to update here"
+              />
+              <input
+                type="text"
+                style={{ width: "200px" }}
+                onChange={e => this.setState({ updateToApply: e.target.value })}
+                placeholder="put new value of the item here"
+              />
+              <button
+                onClick={() =>
+                  this.updateDB(this.state.idToUpdate, this.state.updateToApply)
+                }
+              >
+                UPDATE
+              </button>
+            </div>
+          </div>
         </div>
       </MuiThemeProvider>
     );

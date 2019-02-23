@@ -4,8 +4,14 @@ const Schema = mongoose.Schema;
 // this will be our data base's data structure
 const DocumentSchema = new Schema(
   {
-    docId: String,
-    TFIDF: Number
+    relativePath: String,
+    URL: String,
+    tokens: [
+      {
+        term: String,
+        occurances: Number
+      }
+    ]
   },
   { timestamps: true }
 );

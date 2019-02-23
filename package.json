@@ -12,6 +12,7 @@
     "material-ui-search-bar": "^0.3.0",
     "mongoose": "^5.4.14",
     "morgan": "^1.9.1",
+    "natural": "^0.6.3",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-scripts": "2.1.5"
