@@ -67,7 +67,7 @@ class App extends Component {
     this.setState({
       listings: []
     })
-    fetch("http://localhost:3001/api/index/search/" + encodeURI(query))
+    fetch("https://shielded-ocean-93306.herokuapp.com/api/index/search/" + encodeURI(query))
       .then(data => data.json())
       .then(res => {
         this.setState({
