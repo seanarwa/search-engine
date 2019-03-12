@@ -1,11 +1,14 @@
 import React, { Component } from "react";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import SearchBar from 'material-ui-search-bar';
+import { List, ListItem } from '@material-ui/core';
+import ListingItem from './ListingItem';
 import axios from "axios";
 
-import IndexingPanel from './IndexingPanel';
-
 class App extends Component {
+
+  DOCUMENT_URL = "https://dry-dawn-46731.herokuapp.com/";
+
   // initialize our state
   state = {
     data: [],
@@ -14,7 +17,9 @@ class App extends Component {
     intervalIsSet: false,
     idToDelete: null,
     idToUpdate: null,
-    objectToUpdate: null
+    objectToUpdate: null,
+    query: "",
+    listings: []
   };
 
   // when component mounts, first thing it does is fetch all existing data in our db
@@ -45,11 +50,32 @@ class App extends Component {
   // our first get method that uses our backend api to
   // fetch data from our data base
   getDataFromDb = () => {
-    fetch("http://localhost:3001/api/data/get")
-      .then(data => data.json())
-      .then(res => this.setState({ data: res.data }))
-      .catch((err) => console.log(err));
+    // fetch("http://localhost:3001/api/data/get")
+    //   .then(data => data.json())
+    //   .then(res => this.setState({ data: res.data }))
+    //   .catch((err) => console.log(err));
   };
+
+  fetchDocument = (id) => {
+    fetch(this.DOCUMENT_URL + "api/document/" + id)
+      .then(data => data.json())
+      .then(res => console.log(res.data))
+      .catch((err) => console.log(err));
+  }
+
+  search = (query) => {
+    this.setState({
+      listings: []
+    })
+    fetch("http://localhost:3001/api/index/search/" + encodeURI(query))
+      .then(data => data.json())
+      .then(res => {
+        this.setState({
+          listings: res.data
+        })
+      })
+      .catch((err) => console.log(err));
+  }
 
   // our put method that uses our backend api
   // to create new query into our data base
@@ -101,77 +127,27 @@ class App extends Component {
     });
   };
 
-  // <SearchBar
-  //   onChange={() => console.log('onChange')}
-  //   onRequestSearch={() => console.log('onRequestSearch')}
-  //   style={{ width: "80%" }}
-  // />
-
   // here is our UI
   // it is easy to understand their functions when you
   // see them render into our screen
   render() {
-    const { data } = this.state;
+    const listings = this.state.listings.map(docId =>
+      <ListItem>
+        <ListingItem docId={docId} query={this.state.query} style={{margin: 50}}/>
+      </ListItem>
+    );
+
     return (
       <MuiThemeProvider>
-        <div style={{ height: "100vh", width: "100%", display: "flex", justifyContent: 'center', alignItems: "center" }}>
-          <IndexingPanel />
-          <div>
-            <ul>
-              {data.length <= 0
-                ? "NO DB ENTRIES YET"
-                : data.map(dat => (
-                    <li style={{ padding: "10px" }} key={data.message}>
-                      <span style={{ color: "gray" }}> id: </span> {dat.id} <br />
-                      <span style={{ color: "gray" }}> data: </span>
-                      {dat.message}
-                    </li>
-                  ))}
-            </ul>
-            <div style={{ padding: "10px" }}>
-              <input
-                type="text"
-                onChange={e => this.setState({ message: e.target.value })}
-                placeholder="add something in the database"
-                style={{ width: "200px" }}
-              />
-              <button onClick={() => this.putDataToDB(this.state.message)}>
-                ADD
-              </button>
-            </div>
-            <div style={{ padding: "10px" }}>
-              <input
-                type="text"
-                style={{ width: "200px" }}
-                onChange={e => this.setState({ idToDelete: e.target.value })}
-                placeholder="put id of item to delete here"
-              />
-              <button onClick={() => this.deleteFromDB(this.state.idToDelete)}>
-                DELETE
-              </button>
-            </div>
-            <div style={{ padding: "10px" }}>
-              <input
-                type="text"
-                style={{ width: "200px" }}
-                onChange={e => this.setState({ idToUpdate: e.target.value })}
-                placeholder="id of item to update here"
-              />
-              <input
-                type="text"
-                style={{ width: "200px" }}
-                onChange={e => this.setState({ updateToApply: e.target.value })}
-                placeholder="put new value of the item here"
-              />
-              <button
-                onClick={() =>
-                  this.updateDB(this.state.idToUpdate, this.state.updateToApply)
-                }
-              >
-                UPDATE
-              </button>
-            </div>
-          </div>
+        <div style={{ height: "20%", width: "100%", display: "flex", justifyContent: 'center', alignItems: "center", flexDirection: "column"}}>
+          <SearchBar
+            onChange={(query) => this.setState({query: query})}
+            onRequestSearch={() => this.search(this.state.query)}
+            style={{ width: "80%", marginTop: 50 }}
+          />
+          <List>
+            {listings}
+          </List>
         </div>
       </MuiThemeProvider>
     );

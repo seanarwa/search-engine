@@ -5,9 +5,14 @@ const Schema = mongoose.Schema;
 const IndexSchema = new Schema(
   {
     term: String,
-    documents: [ { type: Schema.Types.ObjectId, ref: 'Document' } ]
+    documents: [
+      {
+        docId: String,
+        TFIDF: Number
+      }
+    ]
   },
-  { timestamps: true }
+  { collection: 'index', timestamps: true }
 );
 
 // export the new Schema so we could modify it using Node.js
