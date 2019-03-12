@@ -141,7 +141,12 @@ class App extends Component {
       <MuiThemeProvider>
         <div style={{ height: "20%", width: "100%", display: "flex", justifyContent: 'center', alignItems: "center", flexDirection: "column"}}>
           <SearchBar
-            onChange={(query) => this.setState({query: query})}
+            onChange={(query) => {
+              this.setState({
+                query: query,
+                listings: []
+              });
+            }}
             onRequestSearch={() => this.search(this.state.query)}
             style={{ width: "80%", marginTop: 50 }}
           />
